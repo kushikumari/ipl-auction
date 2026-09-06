@@ -42,6 +42,7 @@ export default function AdminDashboard() {
     try {
       await startAuction(selectedPlayerId);
       setSelectedPlayerId("");
+      router.push("/auction");
     } catch (err: any) { setError(err instanceof AuctionError ? err.code : err.message); } finally { setLoading(false); }
   };
 
@@ -119,22 +120,17 @@ export default function AdminDashboard() {
           </button>
         </div>
       ) : (
-        <div className="grid lg:grid-cols-2 gap-8">
-          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Trophy className="text-amber-500" /> Auction Control</h2>
-            <div className="space-y-4">
-              <p>Current Status: <span className="font-bold text-amber-500">{auction.status}</span></p>
-              <p>Player: <span className="font-bold">{livePlayer?.name || "None"}</span></p>
-              <p>Highest Bid: <span className="font-bold text-green-500">₹{auction.currentBid}</span> ({auction.highestBidderTeamName || "None"})</p>
-              {auction.status === AuctionStatus.LIVE && (
-                <button onClick={handleSellPlayer} disabled={loading || !auction.highestBidderTeamId} className="w-full py-3 bg-green-600 hover:bg-green-500 rounded-xl font-bold">Mark Player SOLD</button>
-              )}
-            </div>
-          </div>
-          
+        <div className="grid lg:grid-cols-1 gap-8">
           <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Clock className="text-amber-500" /> Start Bidding</h2>
-            {auction.status === AuctionStatus.LIVE ? <p className="text-slate-400">Auction already live.</p> : (
+            {auction.status === AuctionStatus.LIVE ? (
+              <div className="space-y-4">
+                <p className="text-slate-400">Auction is currently live with {livePlayer?.name || "active player"}.</p>
+                <Link href="/auction" className="block w-full py-3 bg-amber-600 hover:bg-amber-500 rounded-xl font-bold text-center">
+                  Go to Live Auction Room
+                </Link>
+              </div>
+            ) : (
               <form onSubmit={handleStartAuction} className="space-y-4">
                 <select value={selectedPlayerId} onChange={e => setSelectedPlayerId(e.target.value)} required className="w-full p-3 bg-slate-800 border rounded-xl">
                   <option value="">Select a player</option>

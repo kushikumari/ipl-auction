@@ -15,7 +15,6 @@ export default function Home() {
     if (loading) return;
 
     if (user && userProfile) {
-      console.log("LOGIN_FLOW: role resolved, redirecting to", userProfile.role === UserRole.ADMIN ? "/admin" : "/team");
       router.replace(userProfile.role === UserRole.ADMIN ? "/admin" : "/team");
     } else if (!user) {
       // Stay on home if not logged in, or optionally redirect to login

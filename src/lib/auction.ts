@@ -120,6 +120,10 @@ export const sellCurrentPlayer = async () => {
     const teamSnap = await transaction.get(teamRef);
     const team = teamSnap.data() as Team;
 
+    if (team.playerCount >= 8) {
+      throw new AuctionError("TEAM_FULL");
+    }
+
     transaction.update(playerRef, { status: "SOLD", currentTeamId: teamSnap.id, soldPrice: auction.currentBid });
     transaction.update(teamRef, {
       remainingBudget: team.remainingBudget - auction.currentBid,

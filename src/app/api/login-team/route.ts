@@ -24,7 +24,6 @@ async function fetchWithRetry(url: string, options: RequestInit, maxAttempts = 3
         (typeof err === 'object' && err !== null && 'cause' in err && (err as any).cause?.code === 'ETIMEDOUT');
 
       if (isTransient && attempt < maxAttempts) {
-        console.log(`LOGIN_DIAGNOSTIC: Attempt ${attempt} failed. Retrying...`);
         await new Promise(resolve => setTimeout(resolve, 500));
         continue;
       }

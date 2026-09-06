@@ -31,18 +31,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log("AUTH_CONTEXT: onAuthStateChanged FIRED", { 
-        firebaseUser: firebaseUser ? firebaseUser.uid : null 
-      });
       setUser(firebaseUser);
       if (firebaseUser) {
-        console.log("AUTH_CONTEXT: Attempting to fetch user profile for", firebaseUser.uid);
         const profile = await getUser(firebaseUser.uid);
-        console.log("AUTH_CONTEXT: User profile result:", profile);
         setUserProfile(profile);
 
         if (profile?.teamId) {
-          console.log("AUTH_CONTEXT: Subscribing to team", profile.teamId);
           subscribeToTeam(profile.teamId, (teamData) => {
             setTeam(teamData);
             setLoading(false); // Set loading to false once team is loaded
@@ -52,7 +46,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setLoading(false); // Set loading to false immediately
         }
       } else {
-        console.log("AUTH_CONTEXT: User logged out");
         setUserProfile(null);
         setTeam(null);
         setLoading(false);
