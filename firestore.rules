@@ -35,7 +35,31 @@ service cloud.firestore {
     // Auction State Collection
     match /auction/{docId} {
       allow read: if request.auth != null;
-      allow write: if isAdmin() || (request.auth != null && getUserData().role == 'TEAM');
+      allow write: if isAdmin() || (
+        request.auth != null &&
+        getUserData().role == 'TEAM' &&
+        // Restrict modified fields to the exact fields updated by placeBid()
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'currentBid',
+          'highestBidderTeamId',
+          'highestBidderTeamName',
+          'bidHistory',
+          'updatedAt'
+        ]) &&
+        // Status, currentPlayerId, and startedAt must remain unchanged
+        request.resource.data.status == resource.data.status &&
+        request.resource.data.currentPlayerId == resource.data.currentPlayerId &&
+        request.resource.data.startedAt == resource.data.startedAt &&
+        // currentBid must strictly increase
+        request.resource.data.currentBid > resource.data.currentBid &&
+        // Bidder must be the authenticated team owner
+        request.resource.data.highestBidderTeamId == getUserData().teamId &&
+        // bidHistory remains a list and cannot be cleared.
+        // NOTE: Because bidHistory is generated client-side, Firestore Rules 
+        // do not perform full cryptographic validation of the complete history array contents.
+        request.resource.data.bidHistory is list &&
+        request.resource.data.bidHistory.size() > 0
+      );
     }
 
     // Transactions History Collection
