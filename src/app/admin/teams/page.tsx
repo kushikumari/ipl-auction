@@ -16,7 +16,7 @@ export default function AdminTeamsPage() {
   const [ownerName, setOwnerName] = useState("");
   const [budget, setBudget] = useState("");
   const [setupCode, setSetupCode] = useState("");
-  const { userProfile } = useAuth();
+  const { user, userProfile } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -64,9 +64,26 @@ export default function AdminTeamsPage() {
   const hasSoldPlayers = (teamId: string) => players.some(p => p.currentTeamId === teamId && p.status === PlayerStatus.SOLD);
 
   const handleDelete = async (team: Team) => {
-    if (hasSoldPlayers(team.id)) return alert("Cannot delete a team that already owns SOLD players.");
     if (confirm(`Are you sure you want to delete ${team.name}?`)) {
-      await deleteTeam(team.id);
+      try {
+        const idToken = await user?.getIdToken();
+        if (!idToken) throw new Error("Not authenticated");
+        
+        const res = await fetch('/api/admin/delete-team', {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json' 
+          },
+          body: JSON.stringify({ teamId: team.id })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to delete team");
+        alert("Team deleted successfully");
+      } catch (err: any) {
+        alert(err.message);
+      }
     }
   };
 

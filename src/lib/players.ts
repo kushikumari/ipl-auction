@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, updateDoc, collection, onSnapshot, deleteDoc, addDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, collection, onSnapshot, deleteDoc, addDoc, runTransaction } from "firebase/firestore";
 import { db } from "./firebase";
 import { Player } from "@/types";
 
@@ -21,7 +21,14 @@ export const updatePlayer = async (id: string, data: Partial<Player>) => {
 };
 
 export const deletePlayer = async (id: string) => {
-  await deleteDoc(doc(db, "players", id));
+  return await runTransaction(db, async (transaction) => {
+    const pRef = doc(db, "players", id);
+    const pSnap = await transaction.get(pRef);
+    if (!pSnap.exists()) throw new Error("PLAYER_NOT_FOUND");
+    const p = pSnap.data() as Player;
+    if (p.status === 'SOLD' || p.status === 'LIVE') throw new Error(`PROTECTED_PLAYER_${p.status}`);
+    transaction.delete(pRef);
+  });
 };
 
 export const subscribeToPlayer = (id: string, callback: (player: Player | null) => void) => {
