@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Trophy, Users, ShieldCheck, ArrowRight } from "lucide-react";
+import { Trophy, Users, ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -12,17 +12,23 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user && userProfile) {
-      console.log("LOGIN_DIAGNOSTIC: Page redirecting based on role:", userProfile.role);
-      if (userProfile.role === UserRole.ADMIN) {
-        router.replace("/admin");
-      } else if (userProfile.role === UserRole.TEAM) {
-        router.replace("/team");
-      }
-    } else if (!loading && user && !userProfile) {
-      console.error("LOGIN_DIAGNOSTIC: AUTHENTICATED but NO PROFILE FOUND");
+    if (loading) return;
+
+    if (user && userProfile) {
+      console.log("LOGIN_FLOW: role resolved, redirecting to", userProfile.role === UserRole.ADMIN ? "/admin" : "/team");
+      router.replace(userProfile.role === UserRole.ADMIN ? "/admin" : "/team");
+    } else if (!user) {
+      // Stay on home if not logged in, or optionally redirect to login
     }
   }, [user, userProfile, loading, router]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <Loader2 className="animate-spin text-amber-500" size={48} />
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">

@@ -22,8 +22,8 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true); setError("");
     try {
-      const result = await adminLogin(email, password);
-      router.replace(result.role === "ADMIN" ? "/admin" : "/team");
+      await adminLogin(email, password);
+      router.replace("/");
     } catch (err: any) {
       setError(err.message || "Admin login failed");
     } finally {
@@ -37,7 +37,6 @@ export default function LoginPage() {
     
     try {
       if (isFirstTime) {
-        // Setup Flow
         const res = await fetch("/api/setup-team", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -47,7 +46,6 @@ export default function LoginPage() {
         if (!res.ok) throw new Error(data.error);
       }
 
-      // Standard Team Login Flow
       const res = await fetch("/api/login-team", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -58,7 +56,7 @@ export default function LoginPage() {
       if (!res.ok) throw new Error(data.error || "Login failed");
 
       await signInWithCustomToken(auth, data.customToken);
-      router.replace("/team");
+      router.replace("/");
     } catch (err: any) {
       setError(err.message || "Team login failed");
     } finally {
