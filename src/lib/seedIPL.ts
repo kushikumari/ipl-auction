@@ -53,7 +53,7 @@ export const IPL_TEAMS_PRESETS: IPLTeamPreset[] = [
     color: "from-red-600 to-slate-900",
     bgGradient: "rgba(239, 68, 68, 0.15)",
     borderColor: "rgba(239, 68, 68, 0.4)",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/en/2/2a/Royal_Challengers_Bengaluru_Logo.svg",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/2/2a/Royal_Challengers_Bengaluru_Logo.svg/1200px-Royal_Challengers_Bengaluru_Logo.svg.png",
     initialBudget: 100000000,
   },
   {
@@ -86,7 +86,7 @@ export const IPL_TEAMS_PRESETS: IPLTeamPreset[] = [
     color: "from-pink-500 to-blue-700",
     bgGradient: "rgba(236, 72, 153, 0.15)",
     borderColor: "rgba(236, 72, 153, 0.4)",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/en/6/60/Rajasthan_Royals_Logo.svg",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/6/60/Rajasthan_Royals_Logo.svg/1200px-Rajasthan_Royals_Logo.svg.png",
     initialBudget: 100000000,
   },
   {
@@ -97,7 +97,7 @@ export const IPL_TEAMS_PRESETS: IPLTeamPreset[] = [
     color: "from-orange-500 to-black",
     bgGradient: "rgba(249, 115, 22, 0.15)",
     borderColor: "rgba(249, 115, 22, 0.4)",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/en/8/81/Sunrisers_Hyderabad_Logo.svg",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/8/81/Sunrisers_Hyderabad_Logo.svg/1200px-Sunrisers_Hyderabad_Logo.svg.png",
     initialBudget: 100000000,
   },
   {
@@ -108,7 +108,7 @@ export const IPL_TEAMS_PRESETS: IPLTeamPreset[] = [
     color: "from-sky-400 to-blue-900",
     bgGradient: "rgba(56, 189, 248, 0.15)",
     borderColor: "rgba(56, 189, 248, 0.4)",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/en/a/a9/Lucknow_Super_Giants_Logo.svg",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/Lucknow_Super_Giants_Logo.svg/1200px-Lucknow_Super_Giants_Logo.svg.png",
     initialBudget: 100000000,
   },
   {
@@ -119,7 +119,7 @@ export const IPL_TEAMS_PRESETS: IPLTeamPreset[] = [
     color: "from-blue-600 to-red-600",
     bgGradient: "rgba(37, 99, 235, 0.15)",
     borderColor: "rgba(37, 99, 235, 0.4)",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/en/2/2f/Delhi_Capitals_Logo.svg",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/2/2f/Delhi_Capitals_Logo.svg/1200px-Delhi_Capitals_Logo.svg.png",
     initialBudget: 100000000,
   },
   {
