@@ -29,6 +29,12 @@ export enum AuctionStatus {
 export interface UserProfile {
   uid: string;
   email: string;
+  name?: string;
+  phone?: string;
+  year?: string;
+  branch?: string;
+  collegeId?: string;
+  favTeam?: string;
   role: UserRole;
   teamId?: string | null;
   createdAt: any;
