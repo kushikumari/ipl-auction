@@ -9,7 +9,7 @@ import { IPL_TEAMS_PRESETS, MARQUEE_INDIAN_PLAYERS } from "@/lib/seedIPL";
 import { PlayerRole } from "@/types";
 
 export default function Home() {
-  const { user, userProfile, logout } = useAuth();
+  const { user, userProfile, isAdmin, logout } = useAuth();
   const [isPaused, setIsPaused] = useState(false);
 
   const formatCurrency = (amount: number) => {
@@ -84,19 +84,31 @@ export default function Home() {
             <span className="hidden sm:inline">Team</span> Leaderboard
           </Link>
 
+          {/* If user is Admin, show prominent Admin Control button */}
+          {user && isAdmin && (
+            <Link
+              href="/admin"
+              className="flex items-center gap-1.5 px-3 md:px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600/80 to-emerald-500/80 hover:from-emerald-500 hover:to-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all duration-300 hover:scale-105 shadow-lg shadow-emerald-500/20 border border-emerald-400/50"
+            >
+              <Shield size={15} />
+              <span>Admin Gavel</span>
+            </Link>
+          )}
+
           {user ? (
             <div className="flex items-center gap-2">
               <Link
-                href="/auction"
-                className="btn-glass-gold px-4 md:px-6 py-2 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-xl border border-amber-400/50 flex items-center gap-1.5"
+                href="/profile"
+                className="btn-glass-gold px-4 md:px-6 py-2 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-xl border border-amber-400/50 flex items-center gap-1.5 hover:scale-105"
+                title="View Full Profile Details"
               >
                 <User size={14} />
-                <span>{userProfile?.name?.split(" ")[0] || "Dashboard"}</span>
+                <span>{userProfile?.name?.split(" ")[0] || user?.displayName?.split(" ")[0] || "Profile"}</span>
               </Link>
               <button
                 onClick={() => logout()}
                 title="Sign Out"
-                className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 hover:text-red-300 transition-all"
+                className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 hover:text-red-300 transition-all hover:scale-105"
               >
                 <LogOut size={16} />
               </button>

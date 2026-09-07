@@ -102,10 +102,14 @@ export default function LoginPage() {
     } catch (err: any) {
       console.error(err);
       let msg = err.message || "Authentication failed. Please check your credentials.";
-      if (msg.includes("auth/user-not-found") || msg.includes("auth/invalid-credential")) {
-        msg = "No account found or invalid password. If you are new, please select 'Create Account (Sign Up)'.";
+      if (msg.includes("auth/configuration-not-found") || msg.includes("configuration-not-found")) {
+        msg = "Firebase Email/Password Authentication is not yet enabled in your Firebase Console. Go to Firebase Console > Authentication > Sign-in method > Enable 'Email/Password'.";
+      } else if (msg.includes("auth/user-not-found") || msg.includes("auth/invalid-credential") || msg.includes("auth/wrong-password")) {
+        msg = "Invalid email or password. If you are a new participant, please click 'Create Account (Sign Up)'.";
       } else if (msg.includes("auth/email-already-in-use")) {
-        msg = "An account with this email already exists. Please switch to Sign In.";
+        msg = "An account with this email already exists. Please switch to 'Sign In (Login)' above.";
+      } else if (msg.includes("Missing or insufficient permissions") || msg.includes("permission-denied")) {
+        msg = "Firestore permission error. Please enable Test Mode rules in Firebase Console: Cloud Firestore > Rules > allow read, write: if true;";
       }
       setError(msg);
     } finally {
@@ -203,21 +207,32 @@ export default function LoginPage() {
               <button
                 type="button"
                 className={`flex-1 py-1.5 rounded-lg transition-all ${activeRole === "STUDENT" ? "bg-amber-500/20 text-amber-300 border border-amber-500/40" : "text-slate-400"}`}
-                onClick={() => setActiveRole("STUDENT")}
+                onClick={() => {
+                  setActiveRole("STUDENT");
+                  setEmail("");
+                  setPassword("");
+                }}
               >
                 Student / User
               </button>
               <button
                 type="button"
                 className={`flex-1 py-1.5 rounded-lg transition-all ${activeRole === "FRANCHISE" ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40" : "text-slate-400"}`}
-                onClick={() => setActiveRole("FRANCHISE")}
+                onClick={() => {
+                  setActiveRole("FRANCHISE");
+                  setPassword("");
+                }}
               >
                 Team Franchise
               </button>
               <button
                 type="button"
                 className={`flex-1 py-1.5 rounded-lg transition-all ${activeRole === "ADMIN" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "text-slate-400"}`}
-                onClick={() => setActiveRole("ADMIN")}
+                onClick={() => {
+                  setActiveRole("ADMIN");
+                  setEmail("shiva.prasad7266@gmail.com");
+                  setPassword("Shiva@7266");
+                }}
               >
                 Admin Gavel
               </button>
@@ -226,6 +241,13 @@ export default function LoginPage() {
 
           {/* Form */}
           <form onSubmit={handleAuthSubmit} className="space-y-4">
+            {/* ADMIN NOTICE */}
+            {activeRole === "ADMIN" && authMode === "LOGIN" && (
+              <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-300 text-xs flex items-center justify-between">
+                <span>👑 Super Admin Portal: <b>shiva.prasad7266@gmail.com</b></span>
+                <span className="text-[10px] font-mono uppercase bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/40">Gavel Access</span>
+              </div>
+            )}
             {/* FRANCHISE SPECIAL LOGIN */}
             {activeRole === "FRANCHISE" && authMode === "LOGIN" ? (
               <>

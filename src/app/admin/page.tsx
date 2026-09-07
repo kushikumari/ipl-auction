@@ -23,7 +23,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function AdminDashboard() {
-  const { user, userProfile, loading: authLoading, logout } = useAuth();
+  const { user, userProfile, isAdmin, loading: authLoading, logout } = useAuth();
   const router = useRouter();
   const [auction, setAuction] = useState<AuctionState | null | undefined>(undefined);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -35,8 +35,10 @@ export default function AdminDashboard() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && (!user || userProfile?.role !== UserRole.ADMIN)) router.push("/login");
-  }, [user, userProfile, authLoading, router]);
+    if (!authLoading && (!user || (!isAdmin && userProfile?.role !== UserRole.ADMIN))) {
+      router.push("/login");
+    }
+  }, [user, userProfile, isAdmin, authLoading, router]);
 
   useEffect(() => {
     const unsubAuction = subscribeToAuctionState(setAuction, (err) => setError(err.message));

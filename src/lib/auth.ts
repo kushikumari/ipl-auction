@@ -19,6 +19,8 @@ export interface RegisterUserData {
   favTeam?: string;
 }
 
+export const ADMIN_EMAIL = "shiva.prasad7266@gmail.com";
+
 export const registerUser = async (data: RegisterUserData) => {
   try {
     const credential = await createUserWithEmailAndPassword(auth, data.email, data.password);
@@ -27,6 +29,8 @@ export const registerUser = async (data: RegisterUserData) => {
     if (data.name) {
       await updateProfile(credential.user, { displayName: data.name });
     }
+
+    const isAdmin = data.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
     // Create user profile in Firestore
     const newProfile: UserProfile = {
@@ -38,7 +42,7 @@ export const registerUser = async (data: RegisterUserData) => {
       branch: data.branch,
       collegeId: data.collegeId || "",
       favTeam: data.favTeam || "",
-      role: UserRole.TEAM,
+      role: isAdmin ? UserRole.ADMIN : UserRole.TEAM,
       teamId: null,
       createdAt: new Date().toISOString(),
     };
@@ -52,24 +56,47 @@ export const registerUser = async (data: RegisterUserData) => {
 
 export const login = async (email: string, password: string) => {
   try {
-    const result = await signInWithEmailAndPassword(auth, email, password);
+    let credential;
+    try {
+      credential = await signInWithEmailAndPassword(auth, email, password);
+    } catch (err: any) {
+      // If admin account does not exist yet in Firebase Auth, automatically register it!
+      if (
+        (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential") &&
+        email.toLowerCase() === ADMIN_EMAIL.toLowerCase()
+      ) {
+        credential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(credential.user, { displayName: "Shiva Prasad (Admin)" });
+      } else {
+        throw err;
+      }
+    }
     
+    const isAdmin = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
     // Resolve or automatically create role profile if missing
-    let profile = await getUser(result.user.uid);
+    let profile = await getUser(credential.user.uid);
     if (!profile) {
-      // Auto-initialize profile for existing auth user
       profile = {
-        uid: result.user.uid,
-        email: result.user.email || email,
-        name: result.user.displayName || email.split("@")[0],
-        role: UserRole.TEAM,
+        uid: credential.user.uid,
+        email: credential.user.email || email,
+        name: credential.user.displayName || (isAdmin ? "Shiva Prasad" : email.split("@")[0]),
+        phone: isAdmin ? "+91 9876543210" : "",
+        year: isAdmin ? "Administrator" : "3rd Year",
+        branch: isAdmin ? "System Admin" : "Computer Science & Eng (CSE)",
+        collegeId: isAdmin ? "ADMIN-01" : "",
+        favTeam: "Royal Challengers Bengaluru",
+        role: isAdmin ? UserRole.ADMIN : UserRole.TEAM,
         teamId: null,
         createdAt: new Date().toISOString(),
       };
       await createUser(profile);
+    } else if (isAdmin && profile.role !== UserRole.ADMIN) {
+      profile.role = UserRole.ADMIN;
+      await createUser(profile);
     }
     
-    return { ...result, role: profile.role, profile };
+    return { ...credential, role: profile.role, profile };
   } catch (error) {
     throw error;
   }
