@@ -40,6 +40,13 @@ export interface UserProfile {
   createdAt: any;
 }
 
+// Member of a team
+export interface Member {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface Team {
   id: string;
   name: string;
@@ -53,6 +60,7 @@ export interface Team {
   password?: string;
   setupCode: string;
   authConfigured: boolean;
+  members?: Member[];
 }
 
 export interface Player {

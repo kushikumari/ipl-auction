@@ -3,22 +3,33 @@
 import { useState, useEffect } from "react";
 import { subscribeToTeams } from "@/lib/teams";
 import { subscribeToPlayers } from "@/lib/players";
+import { subscribeToGlobalSettings } from "@/lib/settings";
+import { useAuth } from "@/context/AuthContext";
 import { Team, Player, PlayerRole, PlayerStatus } from "@/types";
-import { Trophy, Award, Users, Shield, ArrowLeft, Download, Eye, Sparkles, X } from "lucide-react";
+import { Trophy, Award, Users, Shield, ArrowLeft, Download, Eye, Sparkles, X, Lock, EyeOff, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
 export default function LeaderboardPage() {
+  const { isAdmin, loading: authLoading } = useAuth();
   const [teams, setTeams] = useState<Team[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [leaderboardVisible, setLeaderboardVisible] = useState<boolean>(false);
+  const [settingsLoading, setSettingsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const unsubTeams = subscribeToTeams(setTeams);
     const unsubPlayers = subscribeToPlayers(setPlayers);
+    const unsubSettings = subscribeToGlobalSettings((settings) => {
+      setLeaderboardVisible(settings.leaderboardVisible);
+      setSettingsLoading(false);
+    });
+
     return () => {
       unsubTeams();
       unsubPlayers();
+      unsubSettings();
     };
   }, []);
 
@@ -72,9 +83,65 @@ export default function LeaderboardPage() {
     document.body.removeChild(link);
   };
 
+  if (settingsLoading || authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 gap-4">
+        <Loader2 className="animate-spin text-amber-400" size={40} />
+        <p className="font-mono text-sm uppercase tracking-widest">Loading Standings...</p>
+      </div>
+    );
+  }
+
+  if (!leaderboardVisible && !isAdmin) {
+    return (
+      <main className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-10 flex flex-col items-center justify-center relative overflow-hidden">
+        {/* Background glow decorative elements */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-md w-full glass-card glass-card-gold rounded-3xl p-8 text-center relative z-10 border border-amber-500/30 shadow-2xl backdrop-blur-xl">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-inner">
+            <Lock size={40} className="animate-pulse" />
+          </div>
+
+          <span className="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full text-xs font-mono font-bold uppercase tracking-wider inline-block mb-4">
+            Live Results Hidden
+          </span>
+
+          <h1 className="text-3xl font-black text-white uppercase tracking-tight mb-3">
+            Leaderboard Locked
+          </h1>
+
+          <p className="text-slate-400 text-sm mb-8 leading-relaxed">
+            The live standings and auction rankings are currently hidden by the auction administrator. Results will be made visible once the auction controller enables public access.
+          </p>
+
+          <Link
+            href="/"
+            className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black rounded-xl text-sm font-mono uppercase tracking-wider transition-all duration-200 shadow-lg shadow-amber-500/20 hover:scale-[1.02]"
+          >
+            <ArrowLeft size={18} /> Return to Home
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-10 relative">
       <div className="max-w-7xl mx-auto">
+        {!leaderboardVisible && isAdmin && (
+          <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 text-amber-300 text-xs font-mono">
+            <div className="flex items-center gap-2">
+              <EyeOff size={16} className="text-amber-400 shrink-0" />
+              <span><strong>Admin Notice:</strong> The leaderboard is currently <strong>HIDDEN</strong> from public users. You are viewing this page in Admin Preview mode.</span>
+            </div>
+            <Link href="/admin" className="px-3.5 py-1.5 bg-amber-500 text-slate-950 font-black rounded-lg uppercase tracking-wider hover:bg-amber-400 transition shrink-0">
+              Turn ON in Admin
+            </Link>
+          </div>
+        )}
+
         {/* Header Bar */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 pb-6 border-b border-white/10 gap-4">
           <div className="flex items-center gap-4">
