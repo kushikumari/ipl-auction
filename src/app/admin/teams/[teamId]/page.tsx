@@ -13,6 +13,7 @@ import {
   updateSingleTeamBudget
 } from "@/lib/teams";
 import { subscribeToPlayers } from "@/lib/players";
+import { getTeamLogo } from "@/lib/teamLogos";
 import { Team, Player, Member, PlayerStatus, PlayerRole } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
@@ -288,11 +289,14 @@ export default function AdminTeamDetailPage() {
             </Link>
             <div>
               <div className="flex items-center gap-3">
-                {team.logoUrl ? (
-                  <img src={team.logoUrl} alt={team.name} className="w-10 h-10 object-contain rounded-xl p-1 bg-black/40 border border-white/10" />
-                ) : (
-                  <Shield className="text-amber-400" size={28} />
-                )}
+                <img
+                  src={getTeamLogo(team.id, team.logoUrl)}
+                  alt={team.name}
+                  className="w-12 h-12 object-contain rounded-xl p-1 bg-black/40 border border-white/10 drop-shadow"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `/Team photos/${team.id.toLowerCase()}.svg`;
+                  }}
+                />
                 <h1 className="text-3xl font-black text-white uppercase tracking-wider">{team.name}</h1>
               </div>
               <p className="text-slate-400 text-sm mt-1">Admin Panel • Enter bidded players, manage purse &amp; email access.</p>

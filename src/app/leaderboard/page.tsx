@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { subscribeToTeams } from "@/lib/teams";
 import { subscribeToPlayers } from "@/lib/players";
 import { subscribeToGlobalSettings } from "@/lib/settings";
+import { getTeamLogo } from "@/lib/teamLogos";
 import { useAuth } from "@/context/AuthContext";
 import { Team, Player, PlayerRole, PlayerStatus } from "@/types";
 import { Trophy, Award, Users, Shield, ArrowLeft, Download, Eye, Sparkles, X, Lock, EyeOff, Loader2 } from "lucide-react";
@@ -185,7 +186,14 @@ export default function LeaderboardPage() {
               <div className="absolute top-0 right-0 p-3 bg-slate-700/40 text-slate-200 rounded-bl-2xl font-black text-xs font-mono">
                 RANK #2
               </div>
-              <Award size={52} className="text-slate-300 mb-3" />
+              <img
+                src={getTeamLogo(sortedTeams[1].id, sortedTeams[1].logoUrl)}
+                alt={sortedTeams[1].name}
+                className="w-16 h-16 object-contain mb-3 p-1.5 bg-black/40 rounded-2xl border border-white/10 drop-shadow"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `/Team photos/${sortedTeams[1].id.toLowerCase()}.svg`;
+                }}
+              />
               <div>
                 <h3 className="text-2xl font-black text-white uppercase">{sortedTeams[1].name}</h3>
                 <p className="text-xs text-slate-400 mt-1">Owner: {sortedTeams[1].ownerName}</p>
@@ -206,7 +214,14 @@ export default function LeaderboardPage() {
               <div className="absolute top-0 right-0 p-3 bg-amber-500 text-slate-950 rounded-bl-2xl font-black text-xs font-mono">
                 LEADER #1
               </div>
-              <Trophy size={64} className="text-amber-400 mb-3 animate-float glow-text-gold" />
+              <img
+                src={getTeamLogo(sortedTeams[0].id, sortedTeams[0].logoUrl)}
+                alt={sortedTeams[0].name}
+                className="w-20 h-20 object-contain mb-3 p-2 bg-black/50 rounded-2xl border border-amber-500/40 drop-shadow-xl animate-float"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `/Team photos/${sortedTeams[0].id.toLowerCase()}.svg`;
+                }}
+              />
               <div>
                 <h3 className="text-3xl font-black text-white uppercase tracking-tight">{sortedTeams[0].name}</h3>
                 <p className="text-xs text-amber-400 font-medium mt-1">Owner: {sortedTeams[0].ownerName}</p>
@@ -227,7 +242,14 @@ export default function LeaderboardPage() {
               <div className="absolute top-0 right-0 p-3 bg-amber-900/40 text-amber-500 rounded-bl-2xl font-black text-xs font-mono">
                 RANK #3
               </div>
-              <Award size={52} className="text-amber-600 mb-3" />
+              <img
+                src={getTeamLogo(sortedTeams[2].id, sortedTeams[2].logoUrl)}
+                alt={sortedTeams[2].name}
+                className="w-16 h-16 object-contain mb-3 p-1.5 bg-black/40 rounded-2xl border border-white/10 drop-shadow"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `/Team photos/${sortedTeams[2].id.toLowerCase()}.svg`;
+                }}
+              />
               <div>
                 <h3 className="text-2xl font-black text-white uppercase">{sortedTeams[2].name}</h3>
                 <p className="text-xs text-slate-400 mt-1">Owner: {sortedTeams[2].ownerName}</p>
@@ -266,8 +288,20 @@ export default function LeaderboardPage() {
                         {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`}
                       </td>
                       <td className="p-5 font-black text-white uppercase text-base">
-                        <div>{t.name}</div>
-                        <div className="text-xs text-slate-400 font-normal lowercase">owner: {t.ownerName}</div>
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={getTeamLogo(t.id, t.logoUrl)}
+                            alt={t.name}
+                            className="w-10 h-10 object-contain rounded-xl p-1 bg-black/40 border border-white/10 shrink-0 drop-shadow"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = `/Team photos/${t.id.toLowerCase()}.svg`;
+                            }}
+                          />
+                          <div>
+                            <div>{t.name}</div>
+                            <div className="text-xs text-slate-400 font-normal lowercase">owner: {t.ownerName}</div>
+                          </div>
+                        </div>
                       </td>
                       <td className="p-5 text-center font-bold font-mono">
                         <span className={`px-3 py-1 rounded-full text-xs ${t.playerCount >= 8 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-300'}`}>

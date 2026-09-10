@@ -6,6 +6,7 @@ import { subscribeToPlayers } from "@/lib/players";
 import { subscribeToTeams } from "@/lib/teams";
 import { AuctionState, Player, Team, PlayerRole, AuctionStatus } from "@/types";
 import { soundFx } from "@/lib/sound";
+import { getTeamLogo } from "@/lib/teamLogos";
 import { Trophy, Volume2, VolumeX, Shield, User, Sparkles, Award, Zap, Flame } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -195,13 +196,14 @@ export default function ProjectorPage() {
                 {/* Leading Team Spotlight */}
                 {leadingTeam ? (
                   <div className="mt-6 pt-6 border-t border-white/10 flex items-center justify-center gap-4">
-                    {leadingTeam.logoUrl ? (
-                      <img src={leadingTeam.logoUrl} alt={leadingTeam.name} className="w-14 h-14 object-contain drop-shadow-md" />
-                    ) : (
-                      <div className="p-3.5 bg-amber-500/20 text-amber-400 rounded-2xl border border-amber-500/30">
-                        <Shield size={32} />
-                      </div>
-                    )}
+                    <img
+                      src={getTeamLogo(leadingTeam.id, leadingTeam.logoUrl)}
+                      alt={leadingTeam.name}
+                      className="w-14 h-14 object-contain drop-shadow-md"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `/Team photos/${leadingTeam.id.toLowerCase()}.svg`;
+                      }}
+                    />
                     <div className="text-left">
                       <div className="text-[10px] text-amber-400 font-mono font-bold uppercase tracking-widest">HOLDING TOP BID</div>
                       <div className="text-2xl md:text-3xl font-black text-white tracking-wide uppercase">{leadingTeam.name}</div>

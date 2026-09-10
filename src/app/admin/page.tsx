@@ -7,6 +7,7 @@ import { subscribeToPlayers, createPlayer } from "@/lib/players";
 import { subscribeToTeams, createTeam, addTeamMember, removeTeamMember, updateAllTeamsBudget } from "@/lib/teams";
 import { IPL_TEAMS_PRESETS, MARQUEE_INDIAN_PLAYERS } from "@/lib/seedIPL";
 import { subscribeToGlobalSettings, setLeaderboardVisible, setDefaultPurseBudget } from "@/lib/settings";
+import { getTeamLogo, syncAllTeamLogosToLocal } from "@/lib/teamLogos";
 import { Player, Team, PlayerStatus, UserRole } from "@/types";
 import { 
   Loader2, 
@@ -22,15 +23,17 @@ import {
   Trash2, 
   AlertCircle, 
   Award, 
-  ShoppingBag,
-  Tv,
-  Trophy,
-  Eye,
-  EyeOff,
-  Coins,
-  Wallet,
-  Sliders,
-  ArrowRight
+  ShoppingBag, 
+  Tv, 
+  Trophy, 
+  Eye, 
+  EyeOff, 
+  Coins, 
+  Wallet, 
+  Sliders, 
+  ArrowRight,
+  RefreshCw,
+  Image as ImageIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -42,6 +45,7 @@ export default function AdminDashboard() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [seeding, setSeeding] = useState<boolean>(false);
+  const [syncingLogos, setSyncingLogos] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -80,6 +84,10 @@ export default function AdminDashboard() {
         setCustomPurseInput(String(cr));
       }
     });
+
+    // Auto-sync team logos from /public/Team photos/
+    syncAllTeamLogosToLocal().catch(() => {});
+
     return () => {
       unsubPlayers();
       unsubTeams();
@@ -97,6 +105,20 @@ export default function AdminDashboard() {
       setError(err.message || "Failed to update leaderboard visibility.");
     } finally {
       setTogglingLeaderboard(false);
+    }
+  };
+
+  const handleSyncLogos = async () => {
+    setSyncingLogos(true);
+    setError(null);
+    setSuccessMsg(null);
+    try {
+      const count = await syncAllTeamLogosToLocal();
+      setSuccessMsg(`Successfully synced team photos from /public/Team photos for all teams!`);
+    } catch (err: any) {
+      setError(err.message || "Failed to sync team logos.");
+    } finally {
+      setSyncingLogos(false);
     }
   };
 
@@ -567,7 +589,7 @@ export default function AdminDashboard() {
 
         {/* SECTION 2: ALL IPL TEAM CARDS */}
         <section className="space-y-6">
-          <div className="flex justify-between items-center border-b border-white/10 pb-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/10 pb-4">
             <div>
               <h2 className="text-xl font-black text-white flex items-center gap-3 uppercase tracking-wider">
                 <Users className="text-amber-400" size={26} /> IPL TEAM CARDS — SELECT TEAM TO ENTER BIDDED PLAYERS
@@ -576,12 +598,22 @@ export default function AdminDashboard() {
                 Click any team card to open its detail panel where you can manually enter player name, score, and amount bought.
               </p>
             </div>
+            <button
+              onClick={handleSyncLogos}
+              disabled={syncingLogos}
+              className="flex items-center gap-2 px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold text-xs uppercase tracking-wider rounded-xl transition shadow-md hover:scale-105 disabled:opacity-50 shrink-0"
+              title="Sync team photos from /public/Team photos to database"
+            >
+              {syncingLogos ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+              Sync Team Photos
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {teams.map((t, idx) => {
               const memberCount = t.members ? t.members.length : 0;
               const teamPurchasedPlayers = biddedPlayers.filter((p) => p.currentTeamId === t.id);
+              const logoSrc = getTeamLogo(t.id, t.logoUrl);
 
               return (
                 <motion.div
@@ -597,20 +629,14 @@ export default function AdminDashboard() {
                     {/* Top Header */}
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-3">
-                        {t.logoUrl ? (
-                          <img
-                            src={t.logoUrl}
-                            alt={t.name}
-                            className="w-12 h-12 object-contain rounded-xl p-1 bg-black/40 border border-white/10"
-                            onError={(e) => {
-                              (e.target as HTMLElement).style.display = "none";
-                            }}
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-black border border-amber-500/40">
-                            {t.name.substring(0, 2).toUpperCase()}
-                          </div>
-                        )}
+                        <img
+                          src={logoSrc}
+                          alt={t.name}
+                          className="w-12 h-12 object-contain rounded-xl p-1 bg-black/40 border border-white/10 drop-shadow"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = `/Team photos/${t.id.toLowerCase()}.svg`;
+                          }}
+                        />
                         <div>
                           <h3 className="text-xl font-black text-white uppercase group-hover:text-amber-400 transition-colors">
                             {t.name}

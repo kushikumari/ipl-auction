@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { updateUser } from "@/lib/users";
 import { IPL_TEAMS_PRESETS } from "@/lib/seedIPL";
+import { getTeamLogo } from "@/lib/teamLogos";
 import { Trophy, ArrowLeft, User, Mail, Phone, GraduationCap, Building2, Shield, Award, Edit3, Save, CheckCircle, LogOut, Sparkles, Flame, ShieldAlert, Key } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -337,9 +338,12 @@ export default function ProfilePage() {
                   {selectedTeamPreset ? (
                     <div className="w-14 h-14 p-2 bg-black/50 rounded-2xl border border-white/10 flex items-center justify-center">
                       <img
-                        src={selectedTeamPreset.logoUrl}
+                        src={getTeamLogo(selectedTeamPreset.id, selectedTeamPreset.logoUrl)}
                         alt={selectedTeamPreset.name}
                         className="w-full h-full object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = `/Team photos/${selectedTeamPreset.id.toLowerCase()}.svg`;
+                        }}
                       />
                     </div>
                   ) : (

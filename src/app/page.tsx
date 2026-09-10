@@ -27,6 +27,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { IPL_TEAMS_PRESETS, MARQUEE_INDIAN_PLAYERS } from "@/lib/seedIPL";
+import { getTeamLogo } from "@/lib/teamLogos";
 import { PlayerRole, Team } from "@/types";
 import { subscribeToTeams } from "@/lib/teams";
 
@@ -309,11 +310,11 @@ export default function Home() {
                       }`}
                     >
                       <img
-                        src={t.logoUrl}
+                        src={getTeamLogo(t.id, t.logoUrl)}
                         alt={t.name}
                         className="w-10 h-10 object-contain drop-shadow"
                         onError={(e) => {
-                          (e.target as HTMLElement).style.display = "none";
+                          (e.target as HTMLImageElement).src = `/Team photos/${t.id.toLowerCase()}.svg`;
                         }}
                       />
                       <span className="text-[11px] font-black uppercase text-white truncate max-w-full leading-tight">
@@ -441,11 +442,11 @@ export default function Home() {
             >
               <div className="w-16 h-16 md:w-20 md:h-20 mb-3 flex items-center justify-center relative p-1 bg-black/30 rounded-2xl border border-white/10 backdrop-blur-md shadow-inner">
                 <img
-                  src={team.logoUrl}
+                  src={getTeamLogo(team.id, team.logoUrl)}
                   alt={team.name}
                   className="w-full h-full object-contain drop-shadow-xl group-hover:scale-110 transition-transform duration-300"
                   onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
+                    (e.target as HTMLImageElement).src = `/Team photos/${team.id.toLowerCase()}.svg`;
                   }}
                 />
                 <Shield size={36} className="text-amber-400 absolute opacity-20 pointer-events-none" />

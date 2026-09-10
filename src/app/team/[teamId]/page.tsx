@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { subscribeToTeam, subscribeToTeamMembers } from "@/lib/teams";
 import { subscribeToPlayers } from "@/lib/players";
+import { getTeamLogo } from "@/lib/teamLogos";
 import { Team, Player, Member, PlayerStatus } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
@@ -185,11 +186,14 @@ export default function PrivateTeamDashboard() {
             </Link>
             <div>
               <div className="flex items-center gap-3">
-                {team.logoUrl ? (
-                  <img src={team.logoUrl} alt={team.name} className="w-12 h-12 object-contain rounded-xl p-1 bg-black/40 border border-white/10" />
-                ) : (
-                  <Shield className="text-amber-400" size={32} />
-                )}
+                <img
+                  src={getTeamLogo(team.id, team.logoUrl)}
+                  alt={team.name}
+                  className="w-12 h-12 object-contain rounded-xl p-1 bg-black/40 border border-white/10 drop-shadow"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `/Team photos/${team.id.toLowerCase()}.svg`;
+                  }}
+                />
                 <div>
                   <h1 className="text-3xl font-black text-white uppercase tracking-wider flex items-center gap-2">
                     {team.name}
